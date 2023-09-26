@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
     address.sin_port = htons(port);
     inet_pton(AF_INET, ip, &address.sin_addr);
 
+    int opt = 1;
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     //绑定套接字：使用bind函数将监听套接字绑定到指定的地址上。如果绑定失败，则程序终止。
     int ret = 0;
     ret = bind(listenfd, (struct sockaddr*)(&address), sizeof(address));
@@ -42,8 +44,12 @@ int main(int argc, char* argv[]) {
     //接受连接：使用accept函数接受客户端的连接请求，并返回一个新的套接字文件描述符sockfd。如果接受失败，则程序终止。
     struct sockaddr_in client;
     socklen_t client_addrlength = sizeof(client);
-    int sockfd = accept(listenfd, (struct sockaddr*)(&address), &client_addrlength);
+    int sockfd = accept(listenfd, (struct sockaddr*)(&client), &client_addrlength);
 
+    char buff[1024];
+
+    printf("connecting to %s, port %d\n", inet_ntop(AF_INET, &address.sin_addr, buff, sizeof(buff)), ntohs(address.sin_port));
+    printf("connecting from %s, port %d\n", inet_ntop(AF_INET, &client.sin_addr, buff, sizeof(buff)), ntohs(client.sin_port));
     //接收数据：使用recv函数从客户端接收数据，并存储在buf_size缓冲区中。接收到的数据大小存储在recv_size变量中。
     char buf_size[1024] = {0};
     int recv_size = 0;
@@ -54,6 +60,7 @@ int main(int argc, char* argv[]) {
     send_size = send(sockfd, buf_size, recv_size, 0);
 
     //闭套接字：使用close函数关闭客户端套接字和监听套接字。
+    close(ret);
     close(sockfd);
     close(listenfd);
 
