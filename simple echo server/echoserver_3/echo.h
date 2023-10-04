@@ -20,10 +20,10 @@ class echo
 {
 private:
     static const int BUFFER_SIZE  = 1024;
-    static int epollfd;
-    int sockfd;
-    sockaddr_in client_addr;
-    char buf[1024] = {0};
+    static int epollfd; //静态成员变量，用于保存 epoll 实例的文件描述符
+    int sockfd; //连接的套接字文件描述符
+    sockaddr_in client_addr; //连接的客户端地址信息
+    char buf[1024] = {0}; //用于接收和发送数据的缓冲区
 
 public:
     echo() {}
